@@ -1,0 +1,41 @@
+#include "ev3dev.h"
+
+#include <iostream>
+
+
+void printMotorStats(ev3dev::motor& m) {
+    std::cout << "motor " << m.address() << std::endl; 
+    std::cout << "speed: " << m.speed() << std::endl;
+    std::cout << "position: " << m.position() << std::endl;
+}
+
+int main() {
+    ev3dev::motor m(ev3dev::OUTPUT_A);
+    if (m.connected()) {
+        std::cout << "Motor connected." << std::endl;
+    } else {
+        std::cout << "Motor not connected." << std::endl;
+    }
+    printMotorStats(m);
+    std::cout << "commands: ";
+    for (auto cmd : m.commands()) {
+        std::cout << cmd;
+    }
+    std::cout << std::endl;
+   
+    std::cout << "P I D " 
+        << m.position_p() 
+        << " " << m.position_i() 
+        << " " << m.position_d() << std::endl;
+    
+    char end;
+    do {
+        m.set_position_sp(100);
+        ev3dev::mode_set state;
+        do {
+            state = m.state();
+        } while(state.find("runnig") != state.end());
+        std::cin >> end;
+    } while (end != 'q');
+    return 0;
+}
