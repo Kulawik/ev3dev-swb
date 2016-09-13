@@ -7,6 +7,11 @@ die() { [ -n "$1" ] && echo -e "Error: $1\n" >&2; help; [ -z "$1" ]; exit;}
 app=$(readlink -f $1)
 shift 1
 
+if [ ! -d "$app" ]; then
+  echo -e "No such directory: $app";
+  exit 1;
+fi
+
 build="build"
 while getopts "b:" opt; do
   case $opt in
