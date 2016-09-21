@@ -33,8 +33,9 @@ int main() {
 	state_B.addAction(go_down_action);
 	//state_B.addAction(go_left_action);
 	//state_B.addTransition([](CraneData, ElapsedTime)->bool{return true;}, state_C);
-
-	state_A.visit();
 	
+	Poller<CraneData> poller;
+	EventLoop loop(poller);
+	loop.run(state_A);	
 	return 0;
 }
