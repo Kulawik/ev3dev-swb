@@ -1,7 +1,7 @@
 **Note** -- All scripts used in this document are also present in the directory ./scripts in this repository.
 
 1. Install Ubuntu 16.04
-2. Run install_brickstrap.sh script
+2. Run [install_brickstrap.sh](scripts/install_brickstrap.sh) script
 
     ```sh
 sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 2B210565
@@ -54,7 +54,7 @@ EOF
     symlinks -c /usr/lib/arm-linux-gnueabi
     ```
 
-    * Leave brickstrap shell and run prepare_cmake_env.sh:
+    * Leave brickstrap shell and run [prepare_cmake_env.sh](scripts/prepare_cmake_env.sh):
 
         ```sh
     sudo apt-get install gcc-arm-linux-gnueabi g++-arm-linux-gnueabi cmake valac pkg-config

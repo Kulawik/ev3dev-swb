@@ -1,6 +1,6 @@
 #!/bin/bash
 
-help() { echo -e "Cross-compile cmake-based project for ev3dev\nUsage\n\t$0: <path_to_project> [-b <build directory (default: build)>]" >&2;}
+help() { echo -e "Cross-compile cmake-based project for ev3dev\nUses docker image 'ev3cc'\nUsage\n\t$0: <path_to_project> [-b <build directory (default: build)>]" >&2;}
 die() { [ -n "$1" ] && echo -e "Error: $1\n" >&2; help; [ -z "$1" ]; exit;}
 
 [ $# -lt 1 ] && die "Too few args"
