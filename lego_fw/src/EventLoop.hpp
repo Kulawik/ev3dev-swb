@@ -4,17 +4,22 @@
 #include "Poller.hpp"
 #include "State.hpp"
 
-template<typename T, typename E>
+template<typename Data, typename Control>
 class EventLoop {
    public:
-    EventLoop(Poller<T>& poller) : poller_(poller) {}
+    EventLoop(Poller<Data>& poller) : poller_(poller) {}
 
-    void run(State<E>* start_state) {
+    void run(State<Control>* start_state) {
         running_ = true;
         T data;
-        State<E>* current_state = start_state;
+        State<Control>* current_state = start_state;
+        State<Control>* previous_state = nullptr;
         while(running_ && current_state != nullptr) {
-            bool changed = poller_.copyTo(data, current_state.getTimeout());
+            if (previous_state != current_state) {
+                current_state.enter();
+                previous_state = current_state;
+            }
+            poller_.copyTo(data, current_state.getTimeout());
             current_state = current_state.next(data);
         }
     }
@@ -24,7 +29,7 @@ class EventLoop {
     }
 
    private:
-    Poller<T>& poller_;
+    Poller<Data>& poller_;
     bool running_;
 };
 

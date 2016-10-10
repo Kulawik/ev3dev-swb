@@ -10,23 +10,18 @@ template <typename T>
 class Poller {
 public:
     Poller(T data) : buffors_({data, data}) {}
-    void copyTo(T& dst) {
-        std::unique_lock<std::mutex> lock(swap_mutex_);
-        cond.wait_for(lock, [this](){return new_data_;});
-        dst = buffors_[shadow_idx_ ^ 0x1];
-        new_data_ = false;
-    }
 
-    bool copyTo(T& dst, Time timeout) {
+    void copyTo(T& dst, Time* timeout) {
         std::unique_lock<std::mutex> lock(swap_mutex_);
-        cond.wait_for(lock, timeout, [this](){return new_data_;});
+        if (timeout) {
+            cond.wait_for(lock, timeout, [this](){return new_data_;});
+        } else {
+            cond.wait_for(lock, [this](){return new_data_;});
+        }
+
         if (lock.owns_lock()) {
             dst = buffors_[shadow_idx_ ^ 0x1];
             new_data_ = false;
-            return true;
-        }
-        else {
-            return false;
         }
     }
 
