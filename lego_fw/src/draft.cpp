@@ -1,12 +1,12 @@
 
 
 void go_up_action(CraneControl crane, CraneData data) {
-	crane.vMotor().set_position_sp(100);
-	crane.vMotor().set_command("run-to-abs-pos");
+	crane.vMotor()->set_position_sp(100);
+	crane.vMotor()->set_command("run-to-abs-pos");
 }
 
 void go_down_action(CraneControl crane, CraneData data) {
-	CraneControl::motor_ptr motor = crane.vMotor();
+	Safe<motor> motor = crane.vMotor();
 	motor->set_position_sp(0);
 	motor->set_command("run-to-abs-pos");
 }
@@ -33,7 +33,8 @@ int main() {
 	state_B.addAction(go_down_action);
 	//state_B.addAction(go_left_action);
 	//state_B.addTransition([](CraneData, ElapsedTime)->bool{return true;}, state_C);
-	
+	CraneControl control;
+	CraneData data(control);	
 	Poller<CraneData> poller;
 	EventLoop loop(poller);
 	loop.run(state_A);	
