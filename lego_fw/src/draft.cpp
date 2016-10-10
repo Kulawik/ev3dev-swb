@@ -28,7 +28,7 @@ int main() {
 	State state_A, state_B, state_C;
 
 	state_A.addActions(go_up_action);
-	state_A.addTransition(condition_A_to_B, state_B); // (condition callback, target state) 
+	state_A.addTransition(condition_A_to_B, &state_B); // (condition callback, target state) 
 
 	state_B.addAction(go_down_action);
 	//state_B.addAction(go_left_action);
