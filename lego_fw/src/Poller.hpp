@@ -9,6 +9,7 @@ typedef std::chrono::milliseconds Time;
 template <typename T>
 class Poller {
 public:
+    Poller(T data) : buffors_({data, data}) {}
     void copyTo(T& dst) {
         std::unique_lock<std::mutex> lock(swap_mutex_);
         cond.wait_for(lock, [this](){return new_data_;});

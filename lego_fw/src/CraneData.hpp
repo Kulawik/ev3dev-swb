@@ -5,9 +5,12 @@
 #include <condition_variable>
 #include <chrono>
 
-typedef std::chrono::milliseconds Time;
 struct CraneData {
+    CraneData(CraneControl& control) : control_(control);
+    CraneData(const CraneData&) = default;
     bool update();
     // data....
+    private:
+        CraneControl& control_;
 };
 #endif
