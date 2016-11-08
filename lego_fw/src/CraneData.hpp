@@ -5,6 +5,9 @@
 #include <condition_variable>
 #include <chrono>
 
+/*
+ * Container for sensors/motors data.
+ */
 struct CraneData {
     CraneData(CraneControl& control) : control_(control);
     CraneData(const CraneData&) = default;

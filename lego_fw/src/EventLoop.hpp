@@ -4,11 +4,17 @@
 #include "Poller.hpp"
 #include "State.hpp"
 
+/*
+ * Model of the  state machine
+ */
 template<typename Data, typename Control>
 class EventLoop {
    public:
     EventLoop(Poller<Data>& poller) : poller_(poller) {}
 
+    /*
+     * Run state machine
+     */
     void run(State<Control>* start_state) {
         running_ = true;
         T data;
@@ -24,12 +30,16 @@ class EventLoop {
         }
     }
 
+    /*
+     * Stop state machine (requires additional thread)
+     */
     void stop() {
         running_ = false;
     }
 
    private:
     Poller<Data>& poller_;
+    // running flag
     bool running_;
 };
 

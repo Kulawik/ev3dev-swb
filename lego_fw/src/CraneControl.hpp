@@ -18,6 +18,10 @@ public:
 };
 
 
+/*
+ * Controler of the hardware. Stores all necessary motors and sensors together
+ * with mutexes.
+ */
 class CraneControl {
 public:
     CraneControl() {}

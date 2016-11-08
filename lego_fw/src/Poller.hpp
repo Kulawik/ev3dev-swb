@@ -4,13 +4,20 @@
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
+#include <thread>
 
 typedef std::chrono::milliseconds Time;
+
+/*
+ * Periodically reads state of all sensors and alllows for safe copy of them
+ */
 template <typename T>
 class Poller {
 public:
-    Poller(T data) : buffors_({data, data}) {}
+    Poller(T data) : buffers_({data, data}) {}
 
+    // Cope the data to destination. Returns if timeout has been reached. no
+    // timeout is representated by nullptr.
     void copyTo(T& dst, Time* timeout) {
         std::unique_lock<std::mutex> lock(swap_mutex_);
         if (timeout) {
@@ -20,7 +27,7 @@ public:
         }
 
         if (lock.owns_lock()) {
-            dst = buffors_[shadow_idx_ ^ 0x1];
+            dst = buffers_[shadow_idx_ ^ 0x1];
             new_data_ = false;
         }
     }
@@ -32,7 +39,7 @@ public:
             std::this_thread::sleep_for(period_);
         }
     }
-    
+
     void end() {
         working_ = false;
     }
@@ -45,20 +52,20 @@ private:
     }
 
     void readSensors() {
-        bool new_data = buffors_[shadow_idx_].update();
+        bool new_data = buffers_[shadow_idx_].update();
         if(new_data) {
             swap();
             cond.notify_one();
         }
     }
 
-    T buffors_[2];
+    T buffers_[2];
     char shadow_idx_;
     bool new_data_;
     Time period_; // from last readSensors end to next readSensors
     std::mutex swap_mutex_;
     bool working_;
+    std::condition_variable cond;
 };
 
 #endif
-
