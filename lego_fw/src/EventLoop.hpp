@@ -1,5 +1,5 @@
-#ifndef EVENT_LOOP_HPP 
-#define EVENT_LOOP_HPP 
+#ifndef EVENT_LOOP_HPP
+#define EVENT_LOOP_HPP
 
 #include "Poller.hpp"
 #include "State.hpp"
@@ -15,18 +15,18 @@ class EventLoop {
     /*
      * Run state machine
      */
-    void run(State<Control>* start_state) {
+    void run(State<Data, Control>* start_state) {
         running_ = true;
-        T data;
-        State<Control>* current_state = start_state;
-        State<Control>* previous_state = nullptr;
+        Data data;
+        State<Data, Control>* current_state = start_state;
+        State<Data, Control>* previous_state = nullptr;
         while(running_ && current_state != nullptr) {
             if (previous_state != current_state) {
-                current_state.enter();
+                current_state->enter();
                 previous_state = current_state;
             }
-            poller_.copyTo(data, current_state.getTimeout());
-            current_state = current_state.next(data);
+            poller_.copyTo(data, current_state->getTimeout());
+            current_state = current_state->next(data);
         }
     }
 

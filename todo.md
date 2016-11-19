@@ -1,5 +1,5 @@
 Implementation:
-- [ ] State
+- [x] State
 - [ ] CraneControl (all sensors/motors)
 - [ ] CraneData
 - [ ] draft.cpp
