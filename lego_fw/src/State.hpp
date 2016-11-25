@@ -12,11 +12,13 @@ typedef std::chrono::time_point<std::chrono::system_clock> TimePoint;
 template<typename Data, typename Control>
 class State {
    public:
-    typedef std::function<void(Control& crane, Data& data)>
+    typedef std::function<void(Control& control, const Data& data)>
         ActionCallback;
-    typedef std::function<void(Data& data, const Time& elapsed_time)>
+    typedef std::function<void(const Data& data, const Time& elapsed_time)>
         ConditionCallback;
     typedef std::pair<ConditionCallback, State<Data, Control>*> Transition;
+    typedef std::vector<ActionCallback> Actions;
+    typedef std::vector<Transition> Transitions;
 
     State() = default;
     ~State() = default;
@@ -38,6 +40,7 @@ class State {
     /** Remember time of entrance to the state */
     State<Data, Control>& enter() {
         time_entered_ = std::chrono::system_clock::now();
+        //TODO
     }
 
     void addAction(const ActionCallback& action) {
@@ -52,8 +55,8 @@ class State {
    private:
     State(const State&) = delete;
 
-    std::vector<ActionCallback> actions_;
-    std::vector<Transition> transitions_;
+    Actions actions_;
+    Transitions transitions_;
     TimePoint time_entered_;
 };
 

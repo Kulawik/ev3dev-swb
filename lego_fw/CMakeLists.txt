@@ -4,9 +4,12 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type")
 endif()
 
-project(ev3dev-lang-cpp)
+project(lego-framework)
 
 set(EV3DEV_PLATFORM "EV3" CACHE STRING "Target ev3dev platform (EV3/RPI)")
 set_property(CACHE EV3DEV_PLATFORM PROPERTY STRINGS "EV3" "RPI")
 
 add_subdirectory(src)
+
+enable_testing()
+add_subdirectory(test)

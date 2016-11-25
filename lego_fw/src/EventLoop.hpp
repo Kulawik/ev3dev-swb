@@ -25,6 +25,7 @@ class EventLoop {
                 current_state->enter();
                 previous_state = current_state;
             }
+            // TODO current_state.action();
             poller_.copyTo(data, current_state->getTimeout());
             current_state = current_state->next(data);
         }
