@@ -23,6 +23,8 @@ enum MotorLabel {
     D
 };
 
+static const unsigned MOTORS_COUNT = 4;
+
 /*
  * Controler of the hardware. Stores all necessary motors and sensors together
  * with mutexes. This class is a singleton.
@@ -53,11 +55,11 @@ private:
     CraneControl(const CraneControl&) = delete;
     void operator=(const CraneControl&) = delete;
 
-    std::mutex motor_mutexes_[4];
+    std::mutex motor_mutexes_[MOTORS_COUNT];
     std::mutex touch_sensor_mutex_;
     std::mutex infra_sensor_mutex_;
 
-    ev3dev::motor motors_[4] = {
+    ev3dev::motor motors_[MOTORS_COUNT] = {
         ev3dev::motor(ev3dev::OUTPUT_A),
         ev3dev::motor(ev3dev::OUTPUT_B),
         ev3dev::motor(ev3dev::OUTPUT_C),

@@ -1,7 +1,7 @@
 Implementation:
 - [x] State
-- [ ] CraneControl (all sensors/motors)
-- [ ] CraneData // in update() - remember not to lock more than one devices/sensors at once
+- [x] CraneControl (all sensors/motors)
+- [x] CraneData
 - [ ] draft.cpp
 
 additional:
@@ -14,5 +14,5 @@ Tests:
 - [x] State
 - [x] Poller
 - [ ] EventLoop
-- [ ] CraneData  // using mocked CraneControl
+- [x] CraneData
 
