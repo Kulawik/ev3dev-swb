@@ -28,7 +28,7 @@ struct XControl {
 
 struct XData {
     int x;
-    XData(XControl& control) : control_(control) {}
+    XData(XControl& control) : x(0), control_(control) {}
     void update() {
         x = control_.getX();
     }
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( test_enter ) {
     Data data(control);
     auto enter_time = std::chrono::system_clock::now();
     state.enter(control, data);
-    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(1));
+    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(100));
     auto action = [](Control& c, const Data& d) {
         if (d.x < 4) {
             c.incX();
@@ -112,14 +112,14 @@ BOOST_AUTO_TEST_CASE( test_enter ) {
     state.addAction(action);
     state.enter(control, data);
     enter_time = std::chrono::system_clock::now();
-    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(1));
+    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(100));
     BOOST_CHECK_EQUAL(control.getX(), 1);
     data.update();
     state.addAction(action);
     state.addAction(action);
     enter_time = std::chrono::system_clock::now();
     state.enter(control, data);
-    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(1));
+    BOOST_CHECK(state.time_entered_ - enter_time < std::chrono::milliseconds(100));
     BOOST_CHECK_EQUAL(control.getX(), 4);
     data.update();
     state.enter(control, data);
