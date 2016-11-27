@@ -29,9 +29,8 @@ struct XControl {
 struct XData {
     int x;
     XData(XControl& control) : control_(control) {}
-    bool update() {
+    void update() {
         x = control_.getX();
-        return true;
     }
    private:
         XControl& control_;

@@ -12,7 +12,7 @@ additional:
 
 Tests:
 - [x] State
-- [ ] Poller
+- [x] Poller
 - [ ] EventLoop
 - [ ] CraneData  // using mocked CraneControl
 
