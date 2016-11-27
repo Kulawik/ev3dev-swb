@@ -163,12 +163,12 @@ BOOST_AUTO_TEST_CASE( test_next ) {
     data.x = -1;
     BOOST_CHECK(state.next(data) == &state);
     auto cond_T = [](const Data&, const Time& t) {
-        return t > std::chrono::milliseconds(9);
+        return t > std::chrono::milliseconds(400);
     };
     state.enter(control, data);
     state.addTransition(cond_T, &T);
     BOOST_CHECK(state.next(data) == &state);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     BOOST_CHECK(state.next(data) == &T);
 }
 
