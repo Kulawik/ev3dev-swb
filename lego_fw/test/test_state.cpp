@@ -39,7 +39,7 @@ struct XData {
 
 } // namespace
 
-BOOST_AUTO_TEST_SUITE(test_state)
+BOOST_AUTO_TEST_SUITE(test_State)
 
 /** Test if State::addAction adds actions to actions' container */
 BOOST_AUTO_TEST_CASE( test_addAction ) {

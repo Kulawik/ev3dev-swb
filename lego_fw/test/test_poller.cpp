@@ -53,7 +53,7 @@ struct XData {
 
 } // namespace
 
-BOOST_AUTO_TEST_SUITE(test_poller)
+BOOST_AUTO_TEST_SUITE(test_Poller)
 
 BOOST_AUTO_TEST_CASE( test_readSensors ) {
     typedef XData Data;

@@ -58,7 +58,7 @@ namespace {
     };
 }
 
-BOOST_AUTO_TEST_SUITE(test_poller)
+BOOST_AUTO_TEST_SUITE(test_CraneData)
 
 BOOST_AUTO_TEST_CASE( test_update ) {
     typedef XControl Control;
