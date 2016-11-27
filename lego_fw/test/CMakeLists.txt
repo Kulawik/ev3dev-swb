@@ -11,12 +11,15 @@ add_library(test_links INTERFACE)
 
 
 add_executable (TestState test_state.cpp)
+add_executable (TestPoller test_poller.cpp)
 
 target_link_libraries(test_links
     INTERFACE
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 )
 target_link_libraries (TestState test_links)
+target_link_libraries (TestPoller test_links pthread)
 
 add_test (NAME TestState COMMAND TestState)
+add_test (NAME TestPoller COMMAND TestPoller)
 
