@@ -14,13 +14,13 @@ public:
     // c-tor. User should pass both data reference as well as the mutex
     Safe(std::mutex& mtx, T& dv) : lock_(mtx), device_(dv) { }
     // move c-tor
-    Safe(Safe<T>&& s) : device_(s.device_), lock_(std::move(s.lock_)) { }
+    explicit Safe(Safe<T>&& s) : lock_(std::move(s.lock_)), device_(s.device_) { }
     // operator overloads
-    T operator*() { return device_; }
-    T* operator->() { return &device_; }
+    T operator*() const { return device_; }
+    T* operator->() const { return &device_; }
 private:
-    T& device_;
     std::unique_lock<std::mutex> lock_;
+    T& device_;
 };
 
 #endif

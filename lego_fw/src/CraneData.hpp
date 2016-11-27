@@ -8,12 +8,14 @@
 /*
  * Container for sensors/motors data.
  */
-struct CraneData {
-    CraneData(CraneControl& control) : control_(control);
+template <typename T>
+class CraneData {
+    public:
+    CraneData(T& cc) : control_(cc) {}
     CraneData(const CraneData&) = default;
     bool update();
     // data....
     private:
-        CraneControl& control_;
+        T& control_;
 };
 #endif
