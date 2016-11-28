@@ -25,7 +25,11 @@ class EventLoop {
                 current_state->enter(control_, data);
                 previous_state = current_state;
             }
-            poller_.copyTo(data, current_state->getTimeout());
+            poller_.copyTo(data, current_state->getTimeout());  // FIXME when
+                                                                // timeout ==
+                                                                // nullptr, can
+                                                                // never stop
+                                                                // running
             current_state = current_state->next(data);
         }
         running_ = false;
