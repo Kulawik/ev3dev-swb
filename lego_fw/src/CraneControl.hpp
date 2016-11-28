@@ -2,9 +2,7 @@
 #define CRANECTRL_HPP
 
 #include <mutex>
-#include <condition_variable>
 #include <chrono>
-#include <iostream>
 #include <utility>
 
 #include "Safe.hpp"

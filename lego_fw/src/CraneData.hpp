@@ -5,14 +5,15 @@
 #include <condition_variable>
 #include <chrono>
 #include <array>
+
 #include "CraneControl.hpp"
 
 /*
  * Container for sensors/motors data.
  */
-template <typename T>
+template <class Control>
 struct CraneData {
-    CraneData(T& cc) : control_(cc) {}
+    CraneData(Control& control) : control_(control) {}
     CraneData(const CraneData&) = default;
     void update() {
         // get motors positions
@@ -27,7 +28,7 @@ struct CraneData {
         touch_is_pressed = control_.touch_sensor()->is_pressed();
     }
 
-    bool operator==(const CraneData<T> &other) const {
+    bool operator==(const CraneData<Control> &other) const {
         return other.touch_is_pressed == touch_is_pressed &&
                other.infra_proximity == infra_proximity &&
                other.motors_positions == motors_positions;
@@ -42,6 +43,8 @@ struct CraneData {
     // touch
     bool touch_is_pressed;
     private:
-        T& control_;
+        Control& control_;
 };
+
 #endif
+

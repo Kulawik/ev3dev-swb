@@ -10,8 +10,7 @@
 template<typename Data, typename Control>
 class EventLoop {
    public:
-    EventLoop(Poller<Data>& poller) : poller_(poller) {}
-
+    EventLoop(Control& control) : poller_(Data(control)) {}
     /*
      * Run state machine
      */
@@ -28,6 +27,7 @@ class EventLoop {
             poller_.copyTo(data, current_state->getTimeout());
             current_state = current_state->next(data);
         }
+        running_ = false;
     }
 
     /*
