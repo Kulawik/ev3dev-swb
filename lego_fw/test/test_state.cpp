@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE ElementTest
+#define BOOST_TEST_MODULE LegoFrameworkTest
 
 #include <boost/test/unit_test.hpp>
 
