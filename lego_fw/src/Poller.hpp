@@ -71,7 +71,7 @@ private:
     }
 
     Data buffers_[2];
-    char shadow_idx_;
+    unsigned char shadow_idx_;
     bool new_data_;
     Time period_; // from last readSensors end to next readSensors
     bool working_;

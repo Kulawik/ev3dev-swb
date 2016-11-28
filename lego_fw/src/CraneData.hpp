@@ -17,7 +17,7 @@ struct CraneData {
     CraneData(const CraneData&) = default;
     void update() {
         // get motors positions
-        for ( int i = 0; i < MOTORS_COUNT; ++i ) {
+        for ( unsigned i = 0; i < MOTORS_COUNT; ++i ) {
             motors_positions[i] = control_.motor(static_cast<MotorLabel>(i))->position();
         }
 
