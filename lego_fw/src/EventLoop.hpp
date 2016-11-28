@@ -10,18 +10,19 @@
 template<typename Data, typename Control>
 class EventLoop {
    public:
-    EventLoop(Control& control) : poller_(Data(control)) {}
+    EventLoop(Control& control, Poller<Data>& poller)
+        : control_(control), poller_(poller) {}
     /*
      * Run state machine
      */
     void run(State<Data, Control>* start_state) {
         running_ = true;
-        Data data;
+        Data data(control_);
         State<Data, Control>* current_state = start_state;
         State<Data, Control>* previous_state = nullptr;
         while(running_ && current_state != nullptr) {
             if (previous_state != current_state) {
-                current_state->enter();
+                current_state->enter(control_, data);
                 previous_state = current_state;
             }
             poller_.copyTo(data, current_state->getTimeout());
@@ -38,6 +39,7 @@ class EventLoop {
     }
 
    private:
+    Control& control_;
     Poller<Data>& poller_;
     // running flag
     bool running_;
