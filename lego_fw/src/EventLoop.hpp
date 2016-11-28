@@ -3,6 +3,7 @@
 
 #include "Poller.hpp"
 #include "State.hpp"
+#include <atomic>
 
 /*
  * Model of the  state machine
@@ -16,11 +17,11 @@ class EventLoop {
      * Run state machine
      */
     void run(State<Data, Control>* start_state) {
-        running_ = true;
+        running_.store(true);
         Data data(control_);
         State<Data, Control>* current_state = start_state;
         State<Data, Control>* previous_state = nullptr;
-        while(running_ && current_state != nullptr) {
+        while(running_.load() && current_state != nullptr) {
             if (previous_state != current_state) {
                 current_state->enter(control_, data);
                 previous_state = current_state;
@@ -28,21 +29,21 @@ class EventLoop {
             poller_.copyTo(data, current_state->getTimeout());
             current_state = current_state->next(data);
         }
-        running_ = false;
+        running_.store(false);
     }
 
     /*
      * Stop state machine (requires additional thread)
      */
     void stop() {
-        running_ = false;
+        running_.store(false);
     }
 
    private:
     Control& control_;
     Poller<Data>& poller_;
     // running flag
-    bool running_;
+    std::atomic<bool> running_;
 };
 
 #endif

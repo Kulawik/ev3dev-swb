@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <chrono>
 #include <thread>
+#include <atomic>
 
 typedef std::chrono::milliseconds Time;
 
@@ -26,27 +27,27 @@ class Poller {
     void copyTo(Data& dst, Time* timeout) {
         std::unique_lock<std::mutex> lock(swap_mutex_);
         if (timeout) {
-            cond.wait_for(lock, *timeout, [this]() { return new_data_; });
+            cond.wait_for(lock, *timeout, [this]() { return new_data_.load(); });
         } else {
-            cond.wait(lock, [this]() { return new_data_; });
+            cond.wait(lock, [this]() { return new_data_.load(); });
         }
 
         if (lock.owns_lock()) {
             dst = buffers_[shadow_idx_ ^ 0x1];
-            new_data_ = false;
+            new_data_.store(false);
         }
     }
 
     void work() {
-        working_ = true;
-        while(working_) {
+        working_.store(true);
+        while(working_.load()) {
             readSensors();
             std::this_thread::sleep_for(period_);
         }
     }
 
     void end() {
-        working_ = false;
+        working_.store(false);
     }
 
     void setPeriod(const Time& period) {
@@ -57,7 +58,7 @@ private:
     void swap() {
         std::lock_guard<std::mutex> guard(swap_mutex_);
         shadow_idx_ ^= 0x1;
-        new_data_ = true;
+        new_data_.store(true);
     }
 
     void readSensors() {
@@ -72,9 +73,9 @@ private:
 
     Data buffers_[2];
     unsigned char shadow_idx_;
-    bool new_data_;
+    std::atomic<bool> new_data_;
     Time period_; // from last readSensors end to next readSensors
-    bool working_;
+    std::atomic<bool> working_;
     std::mutex swap_mutex_;
     std::condition_variable cond;
 };

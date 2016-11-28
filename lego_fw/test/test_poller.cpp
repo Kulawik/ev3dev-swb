@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( test_work_and_end ) {
 
     auto switch_off_foo = [&poller]() -> std::unique_ptr<std::thread> {
         std::unique_ptr<std::thread> uptr( new std::thread ([&poller] {
-                while(!poller.working_) {}
+                while(!poller.working_.load()) {}
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 poller.end();
         }));
@@ -232,16 +232,20 @@ BOOST_AUTO_TEST_CASE( test_copyTo_with_timeout_once ) {
     Data returned_data(control);
     std::thread worker([&poller]() {poller.work();});
     std::thread supplier([&control, &data]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         control.incX();
         data.update();
     });
-    Time timeout(Time::max());
+    while(!poller.working_.load()) {}
+    Time timeout(Time(100000));
     poller.copyTo(returned_data, &timeout);
     BOOST_CHECK(returned_data == data);
     poller.end();
+    BOOST_TEST_MESSAGE("worker join");
     worker.join();
+    BOOST_TEST_MESSAGE("supplier join");
     supplier.join();
+    BOOST_TEST_MESSAGE("all joined");
 }
 
 BOOST_AUTO_TEST_CASE( test_copyTo_with_timeout_multiple_times ) {
@@ -273,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test_copyTo_with_timeout_multiple_times ) {
         std::unique_lock<std::mutex> lock(mtx);
         cond.wait(lock, [&]() { return ready_to_write;} );
     }
-    Time timeout(Time(20000)); // FIXME check why it doesn't work with Time::max()
+    Time timeout(Time(20000));
 
     for (int i = 0; i < times; ++i) {
         ready_to_read = true;
