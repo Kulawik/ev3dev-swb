@@ -33,8 +33,10 @@ class Logger {
     Stream& get(const Level& level) {
         std::time_t time =
             std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        buffer_ << "[" << std::put_time(std::localtime(&time), "%Z %T") << "][" <<
-            std::this_thread::get_id() << "][" << levelToString(level) << "] ";
+        char foo[24];
+        if (0 < strftime(foo, sizeof(foo), "[%z %T]", std::localtime(&time))) {
+            buffer_ << foo << "[" << std::this_thread::get_id() << "][" << levelToString(level) << "] ";
+        }
         return buffer_;
     }
 
