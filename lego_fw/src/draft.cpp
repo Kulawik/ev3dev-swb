@@ -8,8 +8,9 @@ typedef CraneControl Control;
 typedef CraneData<Control> Data;
 
 void go_up_action(Control& crane, const Data& data) {
-    crane.motor(MotorLabel::A)->set_position_sp(100);
-    crane.motor(MotorLabel::A)->set_command(", controlrun-to-abs-pos");
+    crane.motor(MotorLabel::A)->set_speed_sp(100);
+    crane.motor(MotorLabel::A)->set_position_sp(20);
+    crane.motor(MotorLabel::A)->set_command(", controlrun-to-rel-pos");
 }
 
 void go_down_action(Control& crane, const Data& data) {
