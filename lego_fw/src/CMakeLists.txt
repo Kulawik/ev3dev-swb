@@ -15,3 +15,4 @@ endfunction()
 
 add_ev3_executable(LoggerTest Logger_test.cpp)
 add_ev3_executable(PidTest pidtest.cpp)
+add_ev3_executable(draft draft.cpp)

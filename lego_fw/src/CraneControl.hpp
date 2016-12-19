@@ -21,7 +21,7 @@ enum MotorLabel {
     D
 };
 
-static const unsigned MOTORS_COUNT = 4;
+static const unsigned MOTORS_COUNT = 1;
 
 /*
  * Controler of the hardware. Stores all necessary motors and sensors together
@@ -59,9 +59,9 @@ private:
 
     ev3dev::motor motors_[MOTORS_COUNT] = {
         ev3dev::motor(ev3dev::OUTPUT_A),
-        ev3dev::motor(ev3dev::OUTPUT_B),
-        ev3dev::motor(ev3dev::OUTPUT_C),
-        ev3dev::motor(ev3dev::OUTPUT_D)
+//        ev3dev::motor(ev3dev::OUTPUT_B),
+//        ev3dev::motor(ev3dev::OUTPUT_C),
+//        ev3dev::motor(ev3dev::OUTPUT_D)
     };
 
     ev3dev::touch_sensor touch_sensor_ = ev3dev::touch_sensor(ev3dev::INPUT_1);

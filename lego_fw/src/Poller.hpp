@@ -7,6 +7,10 @@
 #include <thread>
 #include <atomic>
 
+#include <exception>
+
+#include "Logger.hpp"
+
 typedef std::chrono::milliseconds Time;
 
 /*
@@ -39,10 +43,18 @@ class Poller {
     }
 
     void work() {
-        working_.store(true);
-        while(working_.load()) {
-            readSensors();
-            std::this_thread::sleep_for(period_);
+        try {
+            working_.store(true);
+            while(working_.load()) {
+                readSensors();
+                std::this_thread::sleep_for(period_);
+            }
+        }
+        catch (std::exception& e) {
+            ERROR << "Poller::exception: " << e.what();    
+        }
+        catch (...) {
+            ERROR << "Poller::unknown error";    
         }
     }
 
@@ -81,3 +93,4 @@ private:
 };
 
 #endif
+

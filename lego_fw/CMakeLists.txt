@@ -11,5 +11,5 @@ set_property(CACHE EV3DEV_PLATFORM PROPERTY STRINGS "EV3" "RPI")
 
 add_subdirectory(src)
 
-enable_testing()
-add_subdirectory(test)
+#enable_testing()
+#add_subdirectory(test)
