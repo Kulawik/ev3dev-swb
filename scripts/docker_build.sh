@@ -21,4 +21,4 @@ while getopts "b:" opt; do
   esac
 done
 
-docker run --rm -it -v $app:/home/compiler/app_ ev3cc /bin/bash -c "cd app_ && mkdir -p $build && cd $build && rm -rf * && cmake .. \$(~/toolchain.sh) && make"
+docker run --rm -it -v $app:/home/compiler/app_ ev3cc /bin/bash -c "cd app_ && mkdir -p $build && cd $build && rm -rf * && cmake ..  -DCMAKE_TOOLCHAIN_FILE=/home/compiler/toolchain-armel.cmake && make"
