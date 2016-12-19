@@ -24,9 +24,9 @@ namespace {
         private:
             int j;
     };
-    struct dummyInfra {
-        dummyInfra() : j(10) {}
-        int proximity() {
+    struct dummyColor {
+        dummyColor() : j(10) {}
+        int reflected_light_intensity() {
             return j++;
         }
         private:
@@ -45,15 +45,15 @@ namespace {
         dummyMotor* motor(MotorLabel) {
             return &mot;
         }
-        dummyInfra* infra_sensor() {
-            return &infra;
+        dummyColor* color_sensor() {
+            return &color;
         }
         dummyTouch* touch_sensor() {
             return &touch;
         }
         private:
             dummyMotor mot;
-            dummyInfra infra;
+            dummyColor color;
             dummyTouch touch;
     };
 }
@@ -69,14 +69,14 @@ BOOST_AUTO_TEST_CASE( test_update ) {
     BOOST_CHECK_EQUAL(data.motors_positions[1], 1);
     BOOST_CHECK_EQUAL(data.motors_positions[2], 2);
     BOOST_CHECK_EQUAL(data.motors_positions[3], 3);
-    BOOST_CHECK_EQUAL(data.infra_proximity, 10);
+    BOOST_CHECK_EQUAL(data.color_intensity, 10);
     BOOST_CHECK_EQUAL(data.touch_is_pressed, false);
     data.update();
     BOOST_CHECK_EQUAL(data.motors_positions[0], 4);
     BOOST_CHECK_EQUAL(data.motors_positions[1], 5);
     BOOST_CHECK_EQUAL(data.motors_positions[2], 6);
     BOOST_CHECK_EQUAL(data.motors_positions[3], 7);
-    BOOST_CHECK_EQUAL(data.infra_proximity, 11);
+    BOOST_CHECK_EQUAL(data.color_intensity, 11);
     BOOST_CHECK_EQUAL(data.touch_is_pressed, true);
 }
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test_equal_operator ) {
     BOOST_CHECK_EQUAL(data1.motors_positions[1], data2.motors_positions[1]);
     BOOST_CHECK_EQUAL(data1.motors_positions[2], data2.motors_positions[2]);
     BOOST_CHECK_EQUAL(data1.motors_positions[3], data2.motors_positions[3]);
-    BOOST_CHECK_EQUAL(data1.infra_proximity, data2.infra_proximity);
+    BOOST_CHECK_EQUAL(data1.color_intensity, data2.color_intensity);
     BOOST_CHECK_EQUAL(data1.touch_is_pressed, data2.touch_is_pressed);
     BOOST_CHECK(data1 == data2);
     data1.update();
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( test_equal_operator ) {
     BOOST_CHECK_EQUAL(data1.motors_positions[1], data2.motors_positions[1]);
     BOOST_CHECK_EQUAL(data1.motors_positions[2], data2.motors_positions[2]);
     BOOST_CHECK_EQUAL(data1.motors_positions[3], data2.motors_positions[3]);
-    BOOST_CHECK_EQUAL(data1.infra_proximity, data2.infra_proximity);
+    BOOST_CHECK_EQUAL(data1.color_intensity, data2.color_intensity);
     BOOST_CHECK_EQUAL(data1.touch_is_pressed, data2.touch_is_pressed);
     BOOST_CHECK(data1 == data2);
 }

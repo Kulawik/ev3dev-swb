@@ -16,11 +16,11 @@ bool dummyConnectionTester(SafeMotor& m) {
 int main() {
     CraneControl& cc = CraneControl::getInstance();
     SafeMotor m = cc.motor(MotorLabel::A);
-    SafeInfraSensor i = cc.infra_sensor();
+    SafeColorSensor i = cc.color_sensor();
     if (i->connected()) {
-        std::cout << "Infra connected." << std::endl;
+        std::cout << "Color connected." << std::endl;
     } else {
-        std::cout << "Infra not connected." << std::endl;
+        std::cout << "Color not connected." << std::endl;
         return 1;
     }
     if (dummyConnectionTester(m)) {

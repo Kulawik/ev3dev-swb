@@ -23,9 +23,9 @@ struct CraneData {
             motors_positions[i] = control_.motor(static_cast<MotorLabel>(i))->position();
         }
 
-        //DEBUG << "Getting infrared sensor data...";
-        //// get infra
-        //infra_proximity = control_.infra_sensor()->proximity();
+        DEBUG << "Getting color sensor data...";
+        // get color
+        color_intensity = control_.color_sensor()->reflected_light_intensity();
 
         DEBUG << "Getting touch sensor data...";
         // get touch
@@ -34,7 +34,7 @@ struct CraneData {
 
     bool operator==(const CraneData<Control> &other) const {
         return other.touch_is_pressed == touch_is_pressed &&
-               other.infra_proximity == infra_proximity;// &&
+               other.color_intensity == color_intensity;// &&
                //other.motors_positions == motors_positions;
     }
 
@@ -43,7 +43,7 @@ struct CraneData {
     }
 
     CraneData& operator=(const CraneData<Control> &other) {
-        infra_proximity = other.infra_proximity;
+        color_intensity = other.color_intensity;
         touch_is_pressed = other.touch_is_pressed;
         std::copy(other.motors_positions.begin(),
                   other.motors_positions.end(),
@@ -54,8 +54,8 @@ struct CraneData {
     // motors
     std::array<int, MOTORS_COUNT> motors_positions;
 
-    // infra
-    int infra_proximity;
+    // color
+    int color_intensity;
 
     // touch
     bool touch_is_pressed;

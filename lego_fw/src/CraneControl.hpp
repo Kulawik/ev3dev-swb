@@ -10,7 +10,7 @@
 
 typedef std::chrono::milliseconds Time;
 typedef Safe<ev3dev::motor> SafeMotor;
-typedef Safe<ev3dev::infrared_sensor> SafeInfraSensor;
+typedef Safe<ev3dev::color_sensor> SafeColorSensor;
 typedef Safe<ev3dev::touch_sensor> SafeTouchSensor;
 
 // Used for array indices!  Don't change the numbers!
@@ -45,8 +45,8 @@ public:
         return SafeTouchSensor(touch_sensor_mutex_, touch_sensor_);
     }
 
-    SafeInfraSensor infra_sensor() {
-        return SafeInfraSensor(infra_sensor_mutex_, infra_sensor_);
+    SafeColorSensor color_sensor() {
+        return SafeColorSensor(color_sensor_mutex_, color_sensor_);
     }
 private:
     CraneControl() {}
@@ -55,7 +55,7 @@ private:
 
     std::mutex motor_mutexes_[MOTORS_COUNT];
     std::mutex touch_sensor_mutex_;
-    std::mutex infra_sensor_mutex_;
+    std::mutex color_sensor_mutex_;
 
     ev3dev::motor motors_[MOTORS_COUNT] = {
         ev3dev::motor(ev3dev::OUTPUT_A),
@@ -65,6 +65,6 @@ private:
     };
 
     ev3dev::touch_sensor touch_sensor_ = ev3dev::touch_sensor(ev3dev::INPUT_1);
-    ev3dev::infrared_sensor infra_sensor_ = ev3dev::infrared_sensor(ev3dev::INPUT_3);
+    ev3dev::color_sensor color_sensor_ = ev3dev::color_sensor(ev3dev::INPUT_3);
 };
 #endif
