@@ -99,11 +99,13 @@
 \end{itemize}
 \section{Opis wykonanych prac}
 \subsection{Instalacja systemów Ubuntu}
-% TODO secure boot
 Instalacja systemów Ubuntu w maszynie wirtualnej Hyper-V nie przysporzyła
 żadnych problemów, należy postępować zgodnie z instrukcjami wyświetlanymi na
-ekranie.\\
-W laboratorium zainstalowaliśmy dwa systemy Ubuntu w wersji 14.04, a następnie
+ekranie.
+Jedynym odstępstwem od normalnej procedury jest konieczność
+wyłączenia opcji bezpiecznego rozruchu (ang. secure boot)
+w ustawieniach utworzonej maszyny wirtualnej.\\
+W laboratorium z powodzeniem zainstalowaliśmy dwa systemy Ubuntu w wersji 14.04, a następnie
 jedną maszynę z systemem Ubuntu 16.04.
 \subsection{Instalacja na Ubuntu środowiska ev3dev, oraz narzędzi}
 Gdy zaczynaliśmy prace nad projektem (sierpień 2016) jedyną możliwością natywnej
@@ -205,7 +207,6 @@ się w Podsekcji~\ref{user_api}.
 Poniżej przedstawiamy bardzo prostą implementację maszyny stanów w oparciu o dostarczoną
 bibliotekę. Przykład oparty jest o zestaw nr 45544, w związku z czym
 niepotrzebna jest zmiana implementacji żadnego z obiektów biblioteki.
-% TODO co to jest ten timeout?
 \begin{lstlisting}
 #include <chrono>
 #include "CraneData.hpp"
@@ -274,7 +275,9 @@ prawo. Pod wpływem sygnału z sensora dotyku maszyna przechodzi ze stanu A do
 stanu B. Przy wejściu do stanu B silnik C jest najpierw zatrzymywany, po czym
 przechodzi do pozycji absolutnej zadanej odp. parametrami, co w przypadku
 ramienia robota wyśrodkowuje ramię. Następnie po czasie 1 sekundy maszyna stanów
-kończy swoje działanie.\\
+kończy swoje działanie. W celu zastosowania warunku przejścia zależnego od czasu
+należy ustawić dla danego stanu okres z jakim będą sprawdzane warunki przejścia
+przy pomocy metody~\texttt{setTimeout}. \\
 \subsection{Opis interfejsu użytkownika}
 Użytkownik powinien zawsze stworzyć obiekty \texttt{CraneControl}, \texttt{Poller},
 \texttt{EventLoop}, a także odp. stany, reprezentowane przez klasy
@@ -714,5 +717,5 @@ method.
 \texttt{EventLoop} class}
 
 \section{Możliwości rozszerzenia biblioteki}
-% TODO
+
 \end{document}
