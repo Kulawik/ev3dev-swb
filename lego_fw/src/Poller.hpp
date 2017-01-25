@@ -26,7 +26,7 @@ class Poller {
           period_(Time(1)),
           working_(false) {}
 
-    // Cope the data to destination. Returns if timeout has been reached. no
+    // Copy the data to destination. Returns if timeout has been reached. no
     // timeout is representated by nullptr.
     void copyTo(Data& dst, Time* timeout) {
         std::unique_lock<std::mutex> lock(swap_mutex_);

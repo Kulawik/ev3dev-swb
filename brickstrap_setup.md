@@ -79,11 +79,16 @@ EOF
     export PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
     export PKG_CONFIG_SYSROOT_DIR=${SYSROOT_PATH}
     export PKG_CONFIG_LIBDIR=${SYSROOT_PATH}/usr/lib/arm-linux-gnueabi/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/lib/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/share/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/lib/arm-linux-gnueabi/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/lib/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/share/pkgconfig
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/share/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/lib/arm-linux-gnueabi/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/share/pkgconfig"
 
     export XDG_DATA_DIRS=${SYSROOT_PATH}/usr/local/share:${SYSROOT_PATH}/usr/share
     EOL

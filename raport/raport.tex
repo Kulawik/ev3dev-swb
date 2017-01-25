@@ -45,7 +45,7 @@
 \definecolor{darkgreen}{rgb}{0.09, 0.45, 0.27}
 \lstdefinestyle{customc}{
     tabsize=4,
-  % language=C++,
+  language=C++,
   captionpos=b,
   tabsize=3,
   frame=lines,
@@ -62,9 +62,22 @@
   }
 
 % \lstset{escapechar=@,style=customc}
-\lstset{language=C,style=customc}
+\lstset{style=customc}
 
 \begin{document}
+
+% TODO poprawny tytuł
+
+\begingroup
+    \centering
+    \LARGE\textbf{Raport końcowy projektu SWB 2016Z}\\[0.75em]
+    \vspace{0.2cm}
+    {\large\itshape Maciej Kulawik, Łukasz Neumann\par}
+    \vspace{0.5cm}
+    {\large 25.01.2016\par}
+\endgroup
+
+
 \section{Zakres ustalonych prac}
 \begin{itemize}
     \item Instalacja na dwóch komputerach:
@@ -86,6 +99,7 @@
 \end{itemize}
 \section{Opis wykonanych prac}
 \subsection{Instalacja systemów Ubuntu}
+% TODO secure boot
 Instalacja systemów Ubuntu w maszynie wirtualnej Hyper-V nie przysporzyła
 żadnych problemów, należy postępować zgodnie z instrukcjami wyświetlanymi na
 ekranie.\\
@@ -98,10 +112,10 @@ kompilacji skrośnej na sterownik LEGO MINDSTORMS było użycie narzędzia
 sterowniku LEGO MINDSTORM, a także udostępniające możliwość kompilacji skrośnej
 bez konieczności emulacji architektury sterownika. Dzięki narzędziu kompilacja
 jest znacząco szybsza w porównaniu do metod emulujących architekturę urządzenia
-i kompilujących projekty w wirutalnym środowisku.\\
+i kompilujących projekty w wirtualnym środowisku.\\
 Instalacja środowiska \texttt{brickstrap} do celów kompilacji okazała się
 niełatwym zadaniem. Wynika to z faktu rozbieżności instrukcji instalacji i
-użycia narzędzia dostarczonej na stronie
+użycia narzędzia dostarczonej na stronie\newline
 \url{http://www.ev3dev.org/docs/tutorials/using-brickstrap-to-cross-compile/} ze
 stanem faktycznym narzędzia, co w połączeniu z nieudokumentowanymi zmianami
 zarówno w interfejsie, jak i nazewnictwie pewnych składowych narzędzia
@@ -179,7 +193,246 @@ int main() {
     WARNING << "Warning message!";
 }
 \end{lstlisting}
-\subsubsection*{Wat}
+\subsubsection*{Interfejs użytkownika}
+Dostarczona biblioteka udostępnia interfejs użytkownika, który może być
+w łatwy sposób dostosowany do konkretnej architektury urządzeń zewnętrznych.
+Ponadto implementacja maszyny stanów na podstawie biblioteki pozwala w prosty
+sposób pisać maszyny stanów, a utworzony w ten sposób kod jest zwięzły i
+klarowny. Dokładny opis interfejsu, wraz z przykładem użycia biblioteki znajduje
+się w Podsekcji~\ref{user_api}.
+
+\section{Przykład użycia biblioteki i opis jej interfejsu}\label{user_api}
+Poniżej przedstawiamy bardzo prostą implementację maszyny stanów w oparciu o dostarczoną
+bibliotekę. Przykład oparty jest o zestaw nr 45544, w związku z czym
+niepotrzebna jest zmiana implementacji żadnego z obiektów biblioteki.
+% TODO co to jest ten timeout?
+\begin{lstlisting}
+#include <chrono>
+#include "CraneData.hpp"
+#include "CraneControl.hpp"
+#include "State.hpp"
+#include "EventLoop.hpp"
+#include "Logger.hpp"
+
+typedef CraneControl Control;
+typedef CraneData<Control> Data;
+
+void go_right_action(Control& crane, const Data& data) {
+    crane.motor(MotorLabel::C)->set_speed_sp(200);
+    crane.motor(MotorLabel::C)->set_command("run-forever");
+}
+
+void stop_rl_action(Control& crane, const Data& data) {
+    SafeMotor motor = crane.motor(MotorLabel::C);
+    motor->set_command("stop");
+}
+
+void go_center_action(Control& crane, const Data& data) {
+    crane.motor(MotorLabel::C)->set_position(0);
+    crane.motor(MotorLabel::C)->set_position_sp(-270);
+    crane.motor(MotorLabel::C)->set_speed_sp(-200);
+    crane.motor(MotorLabel::C)->set_command("run-to-abs-pos");
+}
+
+bool condition_A_to_B(const Data& data, const Time& time_in_state) {
+    return data.touch_is_pressed;
+}
+
+bool after1s(const Data&, const Time& time) {
+    return time > std::chrono::seconds(1);
+}
+
+int main() {
+    State<Data, Control> state_A, state_B;
+
+
+    state_A.addAction(go_right_action);
+    // (condition callback, target state)
+    state_A.addTransition(condition_A_to_B, &state_B);
+
+    state_B.addAction(stop_rl_action);
+    state_B.addAction(go_center_action);
+    // nullptr denotes the end of state machine
+    state_B.addTransition(after1s, nullptr);
+    state_B.setTimeout(std::chrono::seconds(1));
+
+    Control& control = Control::getInstance();
+    Poller<Data> poller((Data(control)));
+    EventLoop<Data, Control> loop(control, poller);
+
+    std::thread poller_thread([&poller](){poller.work();});
+    loop.run(&state_A);
+
+    poller.end();
+    poller_thread.join();
+    return 0;
+}
+\end{lstlisting}
+W przykładzie pokazano implementację maszyny stanów. Wchodząc do stanu A silnik
+C zaczyna pracować ze stałą prędkością, co przekłada się na ruch ramienia w
+prawo. Pod wpływem sygnału z sensora dotyku maszyna przechodzi ze stanu A do
+stanu B. Przy wejściu do stanu B silnik C jest najpierw zatrzymywany, po czym
+przechodzi do pozycji absolutnej zadanej odp. parametrami, co w przypadku
+ramienia robota wyśrodkowuje ramię. Następnie po czasie 1 sekundy maszyna stanów
+kończy swoje działanie.\\
+\subsection{Opis interfejsu użytkownika}
+Użytkownik powinien zawsze stworzyć obiekty \texttt{CraneControl}, \texttt{Poller},
+\texttt{EventLoop}, a także odp. stany, reprezentowane przez klasy
+\texttt{State}. Opis maszyny uzyskuje się za pomocą dodawania do stanów akcji,
+które mają być wykonane przy wejściu do danego stanu, oraz warunków przejść
+pomiędzy stanami. Poniżej opisano niektóre klasy/funkcje/reprezentacje pod kątem
+tworzenia nowej maszyny stanów. Wszystkie klasy dodatkowo opisane są w
+dostarczonej dokumentacji~\ref{docs}. Użytkownik powinien zwrócić uwagę na dwie
+klasy, które powinny zostać odpowiednio zmodyfikowane, aby spełniały wymagania
+użytkownika, zostały one opisane w Podsekcji~\ref{modifiable}.
+\subsubsection*{Akcje}
+Każda akcja reprezentowana jest przez funkcję zwracającą typ \texttt{void} i posiadającą dwa argumenty:
+referencję na kontroler (\texttt{CraneControl\&}), oraz referencję na aktualne dane
+(\texttt{CraneData<CraneControl>\&}). Kontroler służy do wydawania poleceń poszczególnym silnikom, a
+obiekt danych reprezentuje najnowsze odczyty różnych parametrów sensorów i
+silników. Użytkownik nie powinien czytać danych w funkcjach akcji poprzez
+kontroler, a używać dostarczonych danych. Warto nadmienić, że
+implementacja struktury \texttt{CraneData<T>} dostarczana jest przez użytkownika, co
+pozwala mu na kontrolę nad danymi, których może używać w funkcjach akcji.\\
+Akcja rejestrowana jest w stanie poprzez wywołanie metody \texttt{addAction}
+danego stanu, która w argumencie przyjmuje wskaźnik na funkcję akcji.
+\subsubsection*{Przejścia między stanami}
+Przejście między stanami określone jest przez funkcję warunku, oraz stan do
+którego przejście się ma odbyć. Funkcja warunku dostaje dwa parametry:
+referencję na aktualne dane (\texttt{CraneData<CraneControl>\&}), a także
+referencję na czas, jaki upłynął od momentu wejścia do stanu (\texttt{Time\&}).
+Na podstawie tych argumentów funkcja powinna zwrócić wartość boolowską, gdzie
+wartość \texttt{true} oznacza decyzję o przejściu, natomiast wartość
+\texttt{false} decyzję o braku przejścia (pozostaniu w aktualnym stanie).\\
+W celu rejestracji przejścia należy dla stanu, z którego chcemy dokonać
+przejścia, wywołać metodę \texttt{addTransition}, która przyjmuje dwa argumenty:
+wskaźnik na funkcję warunku, oraz wskaźnik na stan, do którego maszyna stanów
+przejdzie, jeśli funkcja warunku zwróci \texttt{true}. Stan końcowy
+reprezentowany jest przez wartość \texttt{nullptr}.
+\subsubsection*{Kontroler}
+Kontroler jest w architekturze biblioteki singletonem, w związku z czym jedynym
+sposobem na zadeklarowanie i użycie jego obiektu następuje poprzez wywołanie
+metody \texttt{CraneControl::getInstance()}, która zwraca referencję na
+kontroler. Takie rozwiązanie podyktowane jest zapewnieniem bezpiecznej
+synchronizacji dostępu do sprzętu.
+\subsubsection*{Agregator danych}
+Agregator danych zajmuje się odpytywaniem poszczególnych urządzeń zewnętrznych i
+zapisywaniu ich parametrów. Tworzy się go podając w konstruktorze
+strukturę \texttt{CraneData<CraneControl>}, która z kolei w konstruktorze
+przyjmuje referencję na kontroler.\\
+Agregator danych powinien być uruchamiany w oddzielnym wątku, tak jak zostało to
+zaprezentowane na ww. przykładzie. Aby uruchomić agregator należy wywołać jego
+metodę \texttt{work}, a żeby go zatrzymać --- \texttt{end}.
+\subsubsection*{Pętla główna maszyny stanów}
+Pętla główna maszyny stanów realizuje przejścia pomiędzy stanami, oraz trzyma
+informacje o aktualnym stanie. Pętlę główną tworzy się podając jej w
+konstruktorze referencje na kontroler i agregator danych.\\
+Pętlę główną (a co za tym idzie całą maszynę stanów) uruchamia się wywołując jej
+metodę \texttt{run}, której argumentem jest wskaźnik na stan początkowy
+automatu. \textbf{Przed uruchomieniem pętli głównej użytkownik musi upewnić się,
+że agregator danych działa.}
+\subsection{Obiekty zmieniane przez użytkownika}\label{modifiable}
+Aby poprawnie zarządzać sprzętem podpiętym pod sterownik LEGO MINDSTORM
+użytkownik powinien zaznajomić się, i w razie potrzeb zmodyfikować dwa obiekty:
+\texttt{CraneData}, oraz \texttt{CraneControl}. Implementacja tych obiektów w
+niniejszym projekcie opisuje konfigurację sprzętową ramienia LEGO z zestawu nr
+45544.
+\subsubsection*{CraneControl}
+W implementacji tej klasy użytkownik powinien zadeklarować jako prywatne wszystkie urządzenia
+fizyczne użyte w projekcie poprzez ich obiekty w bibliotece ev3dev, a także
+obiekty \texttt{mutex}, po jednym na każde urządzenie zewnętrzne. Dodatkowo
+użytkownik powinien udostępnić sposób komunikacji z tymi urządzeniami za
+pomocą metod publicznych, które zwracają obiekty biblioteki ev3dev opakowane w
+klasę Safe. Poniżej przedstawiamy przykładową implementację kontrolera dla
+jednego zewnętrznego urządzenia --- sensora koloru.
+\begin{lstlisting}
+#ifndef CRANECTRL_HPP
+#define CRANECTRL_HPP
+
+#include <mutex>
+#include <chrono>
+#include <utility>
+
+#include "Safe.hpp"
+#include "ev3dev.h"
+
+typedef std::chrono::milliseconds Time;
+typedef Safe<ev3dev::color_sensor> SafeColorSensor;
+
+/*
+ * Controler of the hardware. Stores all necessary motors and sensors together
+ * with mutexes. This class is a singleton.
+ */
+class CraneControl {
+public:
+    // Singleton - can only be obtained by this method.
+    static CraneControl& getInstance() {
+        // Guaranteed to be destroyed.
+        static CraneControl instance;
+        // Instantiated on first use.
+        return instance;
+    }
+
+    SafeColorSensor color_sensor() {
+        return SafeColorSensor(color_sensor_mutex_, color_sensor_);
+    }
+private:
+    CraneControl() {}
+    CraneControl(const CraneControl&) = delete;
+    void operator=(const CraneControl&) = delete;
+
+    std::mutex color_sensor_mutex_;
+
+    ev3dev::color_sensor color_sensor_ = ev3dev::color_sensor(ev3dev::INPUT_3);
+};
+#endif
+\end{lstlisting}
+\subsubsection*{CraneData}
+Struktura \texttt{CraneData} służy do przechowywania parametrów
+urządzeń zewnętrznych, które są przydatne dla użytkownika. Struktura powinna
+dodatkowo udostępniać operator porównania, a także konstruktor kopiujący, obydwa
+zdefiniowane przez użytkownika i odpowiadające przetrzymywanym danym. Poniżej
+przedstawiamy przykładową implementację struktury \texttt{CraneData} dla jednego
+urządzenia zewnętrznego --- sensora koloru.
+\begin{lstlisting}
+#ifndef CRANEDATA_HPP
+#define CRANEDATA_HPP
+
+#include "CraneControl.hpp"
+
+/*
+ * Container for sensors/motors data.
+ */
+template <class Control>
+struct CraneData {
+    CraneData(Control& control) : control_(control) {}
+    void update() {
+        // get color
+        color_intensity = control_.color_sensor()->reflected_light_intensity();
+    }
+
+    bool operator==(const CraneData<Control> &other) const {
+        return other.color_intensity == color_intensity;
+    }
+
+    bool operator!=(const CraneData<Control> &other) const {
+        return !(*this == other);
+    }
+
+    CraneData& operator=(const CraneData<Control> &other) {
+        color_intensity = other.color_intensity;
+        return *this;
+    }
+
+    // color
+    int color_intensity;
+
+    private:
+        Control& control_;
+};
+
+#endif
+\end{lstlisting}
 \section{Instrukcja instalacji}
 \subsection{Instalacja środowiska kompilacji}
 \subsubsection*{Instalacja środowiska brickstrap}\label{instr_brickstrap}
@@ -272,13 +525,20 @@ przetestowana na systemie operacyjnym Ubuntu 16.04.
     export PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
     export PKG_CONFIG_SYSROOT_DIR=${SYSROOT_PATH}
     export PKG_CONFIG_LIBDIR=${SYSROOT_PATH}/usr/lib/arm-linux-gnueabi/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/lib/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/share/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/lib/arm-linux-gnueabi/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/lib/pkgconfig
-    export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}:${SYSROOT_PATH}/usr/local/share/pkgconfig
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/share/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/lib/arm-linux-gnueabi/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/lib/pkgconfig"
+    export PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR:\
+    $SYSROOT_PATH/usr/local/share/pkgconfig"
 
-    export XDG_DATA_DIRS=${SYSROOT_PATH}/usr/local/share:${SYSROOT_PATH}/usr/share
+
+    export XDG_DATA_DIRS="$SYSROOT_PATH/usr/local/share:\
+    $SYSROOT_PATH/usr/share"
     EOL
     \end{verbatim}
 \item Użyj polecenia:
@@ -354,8 +614,12 @@ Dostarczona biblioteka oparta jest o generyczne pliki nagłówkowe, w związku z
 czym użytkownik powinien zapewnić, że biblioteka jest widoczna w ścieżce
 `include' kompilatora, a następnie użyć wyspecjalizowanych typów z biblioteki.
 Przykładowy projekt pokazujący użycie biblioteki do budowy prostej maszyny
-stanów jest pokazany w przykładzie \texttt{TODO}.
-\section{Dokumentacja}
+stanów jest pokazany w Sekcji~\ref{user_api}. Ponadto użytkownicy mogą chcieć
+zmieniać klasę \texttt{CraneControl} i/lub strukturę \texttt{CraneData}, tak jak
+zostało to opisane w Podsekcji~\ref{modifiable}, w związku z czym proponujemy
+zainstalować bibliotekę w miejscu znanym użytkownikowi, z uprawnieniami
+pozwalającymi na jej modyfikację.
+\section{Dokumentacja}\label{docs}
 Dostarczona biblioteka została napisana w oparciu o język angielski, w związku z
 czym dokumentacja również jest pisana w tym języku, w celu zapewnienia spójności
 tekstu z implementacją i komentarzami w źródłach biblioteki.
@@ -450,4 +714,5 @@ method.
 \texttt{EventLoop} class}
 
 \section{Możliwości rozszerzenia biblioteki}
+% TODO
 \end{document}
