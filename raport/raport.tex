@@ -66,7 +66,6 @@
 
 \begin{document}
 
-% TODO poprawny tytuł
 
 \begingroup
     \centering
@@ -77,8 +76,20 @@
     {\large 25.01.2016\par}
 \endgroup
 
+\section{Opis projektu}
+Celem projektu zrealizowanego w ramach naszej współpracy z dr Dobrowolskim było
+stworzenie środowiska do kompilacji skrośnej aplikacji pisanych w języku C i C++
+na system ev3dev działający na sterownikach LEGO MINDSTORMS. Dodatkowo naszym
+zadaniem było stworzenie biblioteki w języku C++ ułatwiającego implementację maszyn
+stanów dla zestawów LEGO MINDSTORMS. Biblioteka z założenia użyta zostanie w
+przyszłości przez studentów w laboratorium przedmiotu SWB. Szczegółowy zakres
+ustalonych prac został opisany w Sekcji~\ref{prace_ustalone}. Cele projektu udało
+się zrealizować, a dokładny opis wykonanych prac został umieszczony w
+Sekcji~\ref{prace_wykonane}. Opis interfejsu dostarczonej biblioteki,
+instrukcja instalacji środowiska i biblioteki, oraz dokumentacja znajdują się odpowiednio w
+Sekcjach~\ref{user_api},~\ref{installation}~i~\ref{docs}.
 
-\section{Zakres ustalonych prac}
+\section{Zakres ustalonych prac}\label{prace_ustalone}
 \begin{itemize}
     \item Instalacja na dwóch komputerach:
         \begin{itemize}
@@ -97,7 +108,7 @@
     \item Złożenie dwóch zestawów LEGO i uruchomienie środowiska ev3dev na
         sterownikach zestawów.
 \end{itemize}
-\section{Opis wykonanych prac}
+\section{Opis wykonanych prac}\label{prace_wykonane}
 \subsection{Instalacja systemów Ubuntu}
 Instalacja systemów Ubuntu w maszynie wirtualnej Hyper-V nie przysporzyła
 żadnych problemów, należy postępować zgodnie z instrukcjami wyświetlanymi na
@@ -111,7 +122,7 @@ jedną maszynę z systemem Ubuntu 16.04.
 Gdy zaczynaliśmy prace nad projektem (sierpień 2016) jedyną możliwością natywnej
 kompilacji skrośnej na sterownik LEGO MINDSTORMS było użycie narzędzia
 \texttt{brickstrap}. Jest to narzędzie służące do instalacji systemu Debian na
-sterowniku LEGO MINDSTORM, a także udostępniające możliwość kompilacji skrośnej
+sterowniku LEGO MINDSTORMS, a także udostępniające możliwość kompilacji skrośnej
 bez konieczności emulacji architektury sterownika. Dzięki narzędziu kompilacja
 jest znacząco szybsza w porównaniu do metod emulujących architekturę urządzenia
 i kompilujących projekty w wirtualnym środowisku.\\
@@ -335,7 +346,7 @@ metodę \texttt{run}, której argumentem jest wskaźnik na stan początkowy
 automatu. \textbf{Przed uruchomieniem pętli głównej użytkownik musi upewnić się,
 że agregator danych działa.}
 \subsection{Obiekty zmieniane przez użytkownika}\label{modifiable}
-Aby poprawnie zarządzać sprzętem podpiętym pod sterownik LEGO MINDSTORM
+Aby poprawnie zarządzać sprzętem podpiętym pod sterownik LEGO MINDSTORMS
 użytkownik powinien zaznajomić się, i w razie potrzeb zmodyfikować dwa obiekty:
 \texttt{CraneData}, oraz \texttt{CraneControl}. Implementacja tych obiektów w
 niniejszym projekcie opisuje konfigurację sprzętową ramienia LEGO z zestawu nr
@@ -436,7 +447,7 @@ struct CraneData {
 
 #endif
 \end{lstlisting}
-\section{Instrukcja instalacji}
+\section{Instrukcja instalacji}\label{installation}
 \subsection{Instalacja środowiska kompilacji}
 \subsubsection*{Instalacja środowiska brickstrap}\label{instr_brickstrap}
 Wszystkie skrypty użyte w tej instrukcji są również dostępne w katalogu
@@ -715,7 +726,5 @@ method.
 
 \textbf{Users should not change the implementation of the
 \texttt{EventLoop} class}
-
-\section{Możliwości rozszerzenia biblioteki}
 
 \end{document}
